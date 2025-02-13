@@ -29,3 +29,7 @@ TaskFlow é uma API de gerenciamento de tarefas construída com FastAPI e MySQL.
 3. Documentação do FastAPI, onde são encontradas os testes:
 
     http://localhost:8000/docs
+
+4. Executando a Exportação de Tarefas
+
+   docker-compose run exportar
