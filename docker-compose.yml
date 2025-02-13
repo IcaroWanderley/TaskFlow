@@ -1,0 +1,58 @@
+services:
+  # Serviço do banco de dados MySQL
+  db:
+    image: mysql:8.0  # Imagem do MySQL versão 8.0
+    container_name: taskflow_db  # Nome do container
+    restart: unless-stopped  # Reinicia o container a menos que ele seja parado manualmente
+    environment:
+      MYSQL_ROOT_PASSWORD: root  # Senha do usuário root do MySQL
+      MYSQL_DATABASE: taskflow  # Nome do banco de dados a ser criado
+      MYSQL_USER: taskflow  # Nome do usuário do banco de dados
+      MYSQL_PASSWORD: taskflow  # Senha do usuário do banco de dados
+    volumes:
+      - mysql_data:/var/lib/mysql  # Volume para persistência dos dados do MySQL
+    ports:
+      - "3307:3306"  # Mapeia a porta 3306 do container para a porta 3307 do host
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]  # Comando para verificar a saúde do serviço
+      interval: 5s  # Intervalo entre as verificações
+      timeout: 10s  # Tempo limite para cada verificação
+      retries: 10  # Número de tentativas antes de considerar o serviço como não saudável
+
+  # Serviço do Uvicorn para rodar a aplicação FastAPI
+  uvicorn:
+    build: .  # Diretório de build do Dockerfile
+    container_name: taskflow_uvicorn  # Nome do container
+    restart: unless-stopped  # Reinicia o container a menos que ele seja parado manualmente
+    volumes:
+      - .:/app  # Monta o diretório atual no diretório /app do container
+    depends_on:
+      db:
+        condition: service_healthy  # Aguarda o serviço do banco de dados estar saudável antes de iniciar
+    environment:
+      MYSQL_HOST: db  # Nome do host do banco de dados
+      MYSQL_USER: taskflow  # Nome do usuário do banco de dados
+      MYSQL_PASSWORD: taskflow  # Senha do usuário do banco de dados
+      MYSQL_DATABASE: taskflow  # Nome do banco de dados
+    command: uvicorn app.api:app --host 0.0.0.0 --port 8000 --reload  # Comando para iniciar o Uvicorn
+    ports:
+      - "8000:8000"  # Mapeia a porta 8000 do container para a porta 8000 do host
+
+  # Serviço para exportar tarefas para um arquivo JSON
+  exportar:
+    build: .  # Diretório de build do Dockerfile
+    container_name: taskflow_exportar  # Nome do container
+    depends_on:
+      db:
+        condition: service_healthy  # Aguarda o serviço do banco de dados estar saudável antes de iniciar
+    environment:
+      MYSQL_HOST: db  # Nome do host do banco de dados
+      MYSQL_USER: taskflow  # Nome do usuário do banco de dados
+      MYSQL_PASSWORD: taskflow  # Senha do usuário do banco de dados
+      MYSQL_DATABASE: taskflow  # Nome do banco de dados
+    command: python app/exportar.py  # Comando para executar o script de exportação
+    volumes:
+      - .:/app  # Monta o diretório atual no diretório /app do container
+
+volumes:
+  mysql_data:  # Volume para persistência dos dados do MySQL
