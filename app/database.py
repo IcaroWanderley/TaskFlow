@@ -31,7 +31,7 @@ def criar_tabelas():
             id INT AUTO_INCREMENT PRIMARY KEY,
             titulo VARCHAR(255) NOT NULL,
             descricao TEXT NOT NULL,
-            status VARCHAR(50) NOT NULL,
+            status ENUM('Pendente', 'Em Andamento', 'Concluído') NOT NULL,
             usuario_id INT,
             FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
         )

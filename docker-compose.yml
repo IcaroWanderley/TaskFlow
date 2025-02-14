@@ -30,11 +30,12 @@ services:
       db:
         condition: service_healthy  # Aguarda o serviço do banco de dados estar saudável antes de iniciar
     environment:
-      MYSQL_HOST: db  # Nome do host do banco de dados
-      MYSQL_USER: taskflow  # Nome do usuário do banco de dados
-      MYSQL_PASSWORD: taskflow  # Senha do usuário do banco de dados
-      MYSQL_DATABASE: taskflow  # Nome do banco de dados
-    command: uvicorn app.api:app --host 0.0.0.0 --port 8000 --reload  # Comando para iniciar o Uvicorn
+      MYSQL_HOST: db
+      MYSQL_USER: taskflow
+      MYSQL_PASSWORD: taskflow
+      MYSQL_DATABASE: taskflow
+    command: >
+      sh -c "uvicorn app.api:app --host 0.0.0.0 --port 8000 --reload"
     ports:
       - "8000:8000"  # Mapeia a porta 8000 do container para a porta 8000 do host
 
@@ -46,11 +47,12 @@ services:
       db:
         condition: service_healthy  # Aguarda o serviço do banco de dados estar saudável antes de iniciar
     environment:
-      MYSQL_HOST: db  # Nome do host do banco de dados
-      MYSQL_USER: taskflow  # Nome do usuário do banco de dados
-      MYSQL_PASSWORD: taskflow  # Senha do usuário do banco de dados
-      MYSQL_DATABASE: taskflow  # Nome do banco de dados
-    command: python app/exportar.py  # Comando para executar o script de exportação
+      MYSQL_HOST: db
+      MYSQL_USER: taskflow
+      MYSQL_PASSWORD: taskflow
+      MYSQL_DATABASE: taskflow
+    command: >
+      sh -c "python app/exportar.py"
     volumes:
       - .:/app  # Monta o diretório atual no diretório /app do container
 
