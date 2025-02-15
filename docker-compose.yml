@@ -54,7 +54,24 @@ services:
     command: >
       sh -c "python app/exportar.py"
     volumes:
-      - .:/app  # Monta o diretório atual no diretório /app do container
+      - .:/app
+
+  # Serviço para rodar os testes
+  testes:
+    build: .
+    container_name: taskflow_testes
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: taskflow
+      MYSQL_PASSWORD: taskflow
+      MYSQL_DATABASE: taskflow
+    command: >
+      sh -c "pytest tests/test_api.py"  # Comando para rodar os testes
+    volumes:
+      - .:/app
 
 volumes:
   mysql_data:  # Volume para persistência dos dados do MySQL
